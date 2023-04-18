@@ -88,3 +88,6 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+.DS_Store
+/MVVM-CombineExample/MVVM-CombineExample.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+/MVVM-CombineExample/MVVM-CombineExample.xcodeproj/project.xcworkspace/contents.xcworkspacedata
