@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import Combine
 
 final class MainViewController: UIViewController {
 	private let logoView = LogoView()
@@ -10,11 +11,16 @@ final class MainViewController: UIViewController {
 	
 	private var mainStackView = UIStackView()
 	
+	private let viewModel = CalculatoViewModel()
+	private var cancellables = Set<AnyCancellable>()
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		setupViews()
 		setConstraints()
+		
+		bind()
 	}
 	
 	private func setupViews() {
@@ -26,6 +32,20 @@ final class MainViewController: UIViewController {
 			spacing: 36)
 		
 		view.addView(mainStackView)
+	}
+	
+	private func bind() {
+		
+		let input = CalculatoViewModel.Input(
+			billPublisher: billInputView.valuePublisher,
+			tipPublisher: tipInputView.valuePublisher,
+			splitPublisher: splitInputView.valuePublisher)
+		
+		let output = viewModel.transform(input: input)
+		
+		output.updateViewPublisher.sink { result in
+			print(result)
+		}.store(in: &cancellables)
 	}
 }
 

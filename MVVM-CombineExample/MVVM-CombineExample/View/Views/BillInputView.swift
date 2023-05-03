@@ -1,4 +1,6 @@
 import UIKit
+import Combine
+import CombineCocoa
 
 final class BillInputView: UIView {
 	
@@ -50,19 +52,27 @@ final class BillInputView: UIView {
 		return textField
 	}()
 	
-	override func layoutSubviews() {
-		super.layoutSubviews()
-		textFieldContainerView.layer.cornerRadius = 8
+	private let billSubject: PassthroughSubject<Double, Never> = .init()
+	private var cancellables = Set<AnyCancellable>()
+	
+	var valuePublisher: AnyPublisher<Double,Never> {
+		return billSubject.eraseToAnyPublisher()
 	}
-
+	
 	init() {
 		super.init(frame: .zero)
 		setupViews()
 		setConstraints()
+		observe()
 	}
 	
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+	
+	override func layoutSubviews() {
+		super.layoutSubviews()
+		textFieldContainerView.layer.cornerRadius = 8
 	}
 	
 	private func setupViews() {
@@ -71,9 +81,15 @@ final class BillInputView: UIView {
 		textFieldContainerView.addView(textField)
 	}
 	
+	private func observe() {
+		textField.textPublisher.sink {[unowned self] text in
+			guard let text = text else { return }
+			billSubject.send(text.doubleValue ?? 0)
+		}.store(in: &cancellables)
+	}
+	
 	@objc private func doneButtonPressed() {
-		print("Hi")
-		
+		textField.resignFirstResponder()
 	}
 }
 
